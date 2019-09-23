@@ -10,6 +10,7 @@ function WebAudio() {
 
   // Create State for volume
   const [ masterGainValue, setMasterGainValue ] = useState(0);
+  const [ oscillatorNode, setOscillatorNode] = useState([]);
 
   const AudioContext = window.AudioContext || window.webkitAudioContext;
   const audioContext = new AudioContext();
@@ -22,22 +23,43 @@ function WebAudio() {
 
   // Set gain value to 0
   console.log(masterGain.gain.setValueAtTime(0, audioContext.currentTime));
-  masterGain.gain.setValueAtTime(.5, audioContext.currentTime)
+  // masterGain.gain.setValueAtTime(.5, audioContext.currentTime
+  
 
-  // Create an oscillator node
-  const oscillator = audioContext.createOscillator();
-  // Oscillator gain
-  const oscillatorGain = audioContext.createGain();
+  const addOscillatorNode = () => {
 
-  const squareOscillator = (param) => {
-    oscillator.type = 'sine';
-    oscillatorGain.gain.setValueAtTime(0, audioContext.currentTime);
+    // Oscillator gain
+    const oscillatorGain = audioContext.createGain();
+    // oscillatorGain.gain.setValueAtTime(0, audioContext.currentTime);
+    // oscillatorGain.gain.value = 0;
+    masterGain.gain.setValueAtTime(0, audioContext.currentTime)
+    oscillatorGain.connect(audioContext.destination);
+  
+    // Create an oscillator node
+    const oscillator = audioContext.createOscillator();
+    oscillator.type = 'square';
+    oscillator.frequency.setValueAtTime(90, audioContext.currentTime);
     oscillator.connect(audioContext.destination);
     oscillator.start();
+  
+    const oscillatorValues =  {
+      oscillator: oscillator,
+      oscillatorGain: oscillatorGain,
+      type: oscillator.type.saw,
+      frequency: oscillator.frequency.value,
+      gain: .1
+    }
+
+    console.log(setOscillatorNode([...oscillatorNode, oscillatorValues]))
   }
 
   const play = () => {
-    masterGain.gain.setTargetAtTime(masterGainValue, audioContext.currentTime, 0.001);
+    // oscillatorGain.gain.setTargetAtTime(masterGainValue, audioContext.currentTime, 0.001);
+    // masterGain.gain.value = 0.9;
+    const oscillator = audioContext.createOscillator();
+    // oscillator.connect(audioContext.destination);
+    oscillator.stop();
+
   }
 
   const pause = () => {
@@ -51,7 +73,9 @@ function WebAudio() {
   return (
     <div>
       <p>React Web Audio Api</p>
-      <button onClick={squareOscillator}>Activate</button>
+      <button 
+        onClick={addOscillatorNode}
+      >Activate</button>
       <p>Master Volume:</p>
       <input 
         type='range'
@@ -60,7 +84,8 @@ function WebAudio() {
         value={masterGainValue*100}
         onChange={changeMasterVolume}
       />
-      <button 
+      <button
+        onClick={play}
         onMouseDown={play}
         onMouseUp={pause}
         >Play/Pause</button>
