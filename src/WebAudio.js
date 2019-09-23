@@ -22,13 +22,26 @@ function WebAudio() {
 
   // Set gain value to 0
   console.log(masterGain.gain.setValueAtTime(0, audioContext.currentTime));
+  masterGain.gain.setValueAtTime(.5, audioContext.currentTime)
+
+  // Create an oscillator node
+  const oscillator = audioContext.createOscillator();
+  // Oscillator gain
+  const oscillatorGain = audioContext.createGain();
+
+  const squareOscillator = (param) => {
+    oscillator.type = 'sine';
+    oscillatorGain.gain.setValueAtTime(0, audioContext.currentTime);
+    oscillator.connect(audioContext.destination);
+    oscillator.start();
+  }
 
   const play = () => {
-
+    masterGain.gain.setTargetAtTime(masterGainValue, audioContext.currentTime, 0.001);
   }
 
   const pause = () => {
-
+    masterGain.gain.setTargetAtTime(0, audioContext.currentTime, 0.001);
   }
 
   const changeMasterVolume = (e) => {
@@ -38,6 +51,8 @@ function WebAudio() {
   return (
     <div>
       <p>React Web Audio Api</p>
+      <button onClick={squareOscillator}>Activate</button>
+      <p>Master Volume:</p>
       <input 
         type='range'
         min='0'
